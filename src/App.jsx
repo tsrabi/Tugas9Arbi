@@ -187,12 +187,15 @@ export default function App() {
   return (
     <ConfigProvider
       theme={{
-        algorithm: theme.darkAlgorithm,
+        algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#6366f1',
+          colorPrimary: '#0ea5e9',
           colorSuccess: '#14b8a6',
-          colorBgBase: '#05070f',
-          borderRadius: 12,
+          colorWarning: '#f59e0b',
+          colorBgBase: '#f8fafc',
+          controlItemBg: '#ffffff',
+          borderRadius: 16,
+          fontFamily: 'Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         },
       }}
     >
@@ -206,38 +209,36 @@ export default function App() {
         position: 'relative',
         zIndex: 1
       }}>
-        <div style={{ width: '100%', maxWidth: '480px' }}>
+        <div style={{ width: '100%', maxWidth: '540px' }}>
           <Card className="glass-container" bordered={false}>
-            <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{ textAlign: 'center', marginBottom: 32 }}>
               <div className="cyber-badge">
                 <span className="pulse" />
-                <SafetyCertificateOutlined style={{ fontSize: 13 }} />
+                <SafetyCertificateOutlined style={{ fontSize: 14 }} />
                 <span>ZERO-KNOWLEDGE CRYPTOGRAPHY</span>
               </div>
               <Typography.Title level={2} style={{ 
-                margin: '8px 0 0 0', 
+                margin: '10px 0 6px 0', 
                 fontWeight: 800, 
-                fontSize: '28px',
-                letterSpacing: '-0.5px',
-                background: 'linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #2dd4bf 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
+                fontSize: '34px',
+                letterSpacing: '-0.7px',
+                color: '#0f172a'
               }}>
                 ZK-Auth Portal
               </Typography.Title>
-              <Typography.Text type="secondary" style={{ display: 'block', fontSize: '13px', marginTop: '8px' }}>
-                Secure on-chain register and login powered by ZK-Snarks (Groth16) consensus logic.
+              <Typography.Text style={{ display: 'block', fontSize: '15px', marginTop: '8px', color: '#475569', lineHeight: 1.7 }}>
+                Daftar dan login aman on-chain menggunakan bukti Zero-Knowledge Proof yang modern dan elegan.
               </Typography.Text>
             </div>
 
             <Form layout="vertical" requiredMark={false}>
               <Form.Item 
-                label={<span style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 700, letterSpacing: '1px' }}>USERNAME</span>}
-                style={{ marginBottom: 20 }}
+                label={<span style={{ color: '#64748b', fontSize: '12px', fontWeight: 700, letterSpacing: '1px' }}>USERNAME</span>}
+                style={{ marginBottom: 22 }}
               >
                 <Input 
-                  placeholder="Enter your username" 
-                  prefix={<UserOutlined style={{ color: '#6366f1' }} />}
+                  placeholder="Masukkan username" 
+                  prefix={<UserOutlined style={{ color: '#0ea5e9' }} />}
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="cyber-input"
@@ -246,12 +247,12 @@ export default function App() {
                 />
               </Form.Item>
               <Form.Item 
-                label={<span style={{ color: '#94a3b8', fontSize: '11px', fontWeight: 700, letterSpacing: '1px' }}>PASSWORD</span>}
-                style={{ marginBottom: 24 }}
+                label={<span style={{ color: '#64748b', fontSize: '12px', fontWeight: 700, letterSpacing: '1px' }}>PASSWORD</span>}
+                style={{ marginBottom: 26 }}
               >
                 <Input.Password 
-                  placeholder="Enter secure password" 
-                  prefix={<LockOutlined style={{ color: '#6366f1' }} />}
+                  placeholder="Masukkan password" 
+                  prefix={<LockOutlined style={{ color: '#0ea5e9' }} />}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="cyber-input"
@@ -269,7 +270,7 @@ export default function App() {
                   className="btn-cyber-primary"
                   style={{ flex: 1 }}
                 >
-                  Register
+                  Daftar
                 </Button>
                 <Button 
                   type="primary" 
@@ -279,7 +280,7 @@ export default function App() {
                   className="btn-cyber-secondary"
                   style={{ flex: 1 }}
                 >
-                  Login
+                  Masuk
                 </Button>
               </div>
             </Form>
@@ -302,14 +303,14 @@ export default function App() {
                 </div>
                 <div style={{
                   fontFamily: "'JetBrains Mono', monospace",
-                  background: 'rgba(2, 6, 23, 0.9)',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  borderLeft: '3px solid #2dd4bf',
-                  borderRadius: '12px',
-                  padding: '16px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  border: '1px solid rgba(148, 163, 184, 0.25)',
+                  borderLeft: '4px solid #14b8a6',
+                  borderRadius: '18px',
+                  padding: '18px',
                   maxHeight: '220px',
                   overflowY: 'auto',
-                  boxShadow: 'inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 0 15px rgba(99, 102, 241, 0.05)',
+                  boxShadow: 'inset 0 1px 4px rgba(15, 23, 42, 0.04)',
                   fontSize: '12px',
                   lineHeight: '1.6'
                 }}>
