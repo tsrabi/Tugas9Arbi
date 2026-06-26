@@ -13,16 +13,56 @@ import {
 } from '@ant-design/icons';
 import './App.css';
 
-const AUTH_MANAGER_ADDRESS = "0xa603a63F1b75aAddff2e25D22e02C8410C81F074";
+const AUTH_MANAGER_ADDRESS = "0xd918f1705C5EDda6b62F1e1F9DF168A063A302eA";
+const VERIFIER_ADDRESS = "0x064229De270fe24739d8aCA7982A097E79B6cd5E";
+const SEPOLIA_CHAIN_ID = 11155111;
+
+const VERIFIER_ABI = [
+  {
+    "inputs": [
+      { "internalType": "uint256[2]", "name": "_pA", "type": "uint256[2]" },
+      { "internalType": "uint256[2][2]", "name": "_pB", "type": "uint256[2][2]" },
+      { "internalType": "uint256[2]", "name": "_pC", "type": "uint256[2]" },
+      { "internalType": "uint256[1]", "name": "_pubSignals", "type": "uint256[1]" }
+    ],
+    "name": "verifyProof",
+    "outputs": [
+      { "internalType": "bool", "name": "", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+];
 
 const AUTH_MANAGER_ABI = [
   "function register(uint256 _commitment) public",
-  "function login(uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[1] calldata input) public view returns (bool)",
-  "function userCommitments(address) public view returns (uint256)"
+  "function login(uint256[2] calldata a, uint256[2][2] calldata b, uint256[2] calldata c, uint256[1] calldata input) public returns (bool)",
+  "function logout() public",
+  "function userCommitments(address) public view returns (uint256)",
+  "function loggedIn(address) public view returns (bool)"
 ];
+
+console.log('APP CONFIG:', {
+  AUTH_MANAGER_ADDRESS,
+  VERIFIER_ADDRESS,
+  SEPOLIA_CHAIN_ID,
+  AUTH_MANAGER_ABI_LENGTH: AUTH_MANAGER_ABI.length,
+  VERIFIER_ABI_LENGTH: VERIFIER_ABI.length,
+});
 
 function stringToBigInt(str) {
   return BigInt(ethers.utils.id(str));
+}
+
+function getReadableError(error) {
+  const message = error?.message || "";
+  if (message.includes("missing revert data")) {
+    return "Koneksi ke smart contract gagal. Pastikan MetaMask terhubung ke jaringan Sepolia dan alamat kontrak sudah benar.";
+  }
+  if (message.includes("call exception") || message.includes("reverted")) {
+    return "Panggilan ke smart contract ditolak. Periksa jaringan, alamat kontrak, dan ABI yang digunakan.";
+  }
+  return message || "Terjadi kesalahan yang tidak diketahui.";
 }
 
 export default function App() {
@@ -64,6 +104,33 @@ export default function App() {
       const userAddress = await signer.getAddress();
       addLog(`Wallet terhubung: ${userAddress}`);
 
+      const network = await provider.getNetwork();
+      if (network.chainId !== SEPOLIA_CHAIN_ID) {
+        addLog("⚠️ MetaMask belum terhubung ke jaringan Sepolia.");
+        setStatus("⚠️ Silakan ganti jaringan ke Sepolia.");
+        setLoading(false);
+        return;
+      }
+
+      addLog(`AuthManager address: ${AUTH_MANAGER_ADDRESS}`);
+      addLog(`Verifier address: ${VERIFIER_ADDRESS}`);
+      const authCode = await provider.getCode(AUTH_MANAGER_ADDRESS);
+      const verifierCode = await provider.getCode(VERIFIER_ADDRESS);
+      addLog(`AuthManager code: ${authCode === '0x' ? 'TIDAK DITEMUKAN' : 'TERDAPAT'}`);
+      addLog(`Verifier code: ${verifierCode === '0x' ? 'TIDAK DITEMUKAN' : 'TERDAPAT'}`);
+      if (authCode === "0x") {
+        addLog("⚠️ Alamat smart contract Auth Manager tidak ditemukan di jaringan Sepolia.");
+        setStatus("⚠️ Alamat Auth Manager tidak ditemukan di Sepolia.");
+        setLoading(false);
+        return;
+      }
+      if (verifierCode === "0x") {
+        addLog("⚠️ Alamat smart contract Verifier tidak ditemukan di jaringan Sepolia.");
+        setStatus("⚠️ Alamat Verifier tidak ditemukan di Sepolia.");
+        setLoading(false);
+        return;
+      }
+
       addLog("Memeriksa status registrasi wallet di smart contract Sepolia...");
       const contract = new ethers.Contract(AUTH_MANAGER_ADDRESS, AUTH_MANAGER_ABI, signer);
       const existingCommitment = await contract.userCommitments(userAddress);
@@ -104,8 +171,9 @@ export default function App() {
       setStatus("🎉 Registrasi Berhasil!");
     } catch (err) {
       console.error(err);
-      addLog(`❌ Registrasi Gagal: ${err.message}`);
-      setStatus("❌ Registrasi Gagal: " + err.message);
+      const readableMessage = getReadableError(err);
+      addLog(`❌ Registrasi Gagal: ${readableMessage}`);
+      setStatus("❌ Registrasi Gagal: " + readableMessage);
     } finally {
       setLoading(false);
     }
@@ -124,6 +192,33 @@ export default function App() {
       const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
       addLog(`Wallet terhubung: ${userAddress}`);
+
+      const network = await provider.getNetwork();
+      if (network.chainId !== SEPOLIA_CHAIN_ID) {
+        addLog("⚠️ MetaMask belum terhubung ke jaringan Sepolia.");
+        setStatus("⚠️ Silakan ganti jaringan ke Sepolia.");
+        setLoading(false);
+        return;
+      }
+
+      addLog(`AuthManager address: ${AUTH_MANAGER_ADDRESS}`);
+      addLog(`Verifier address: ${VERIFIER_ADDRESS}`);
+      const authCode = await provider.getCode(AUTH_MANAGER_ADDRESS);
+      const verifierCode = await provider.getCode(VERIFIER_ADDRESS);
+      addLog(`AuthManager code: ${authCode === '0x' ? 'TIDAK DITEMUKAN' : 'TERDAPAT'}`);
+      addLog(`Verifier code: ${verifierCode === '0x' ? 'TIDAK DITEMUKAN' : 'TERDAPAT'}`);
+      if (authCode === "0x") {
+        addLog("⚠️ Alamat smart contract Auth Manager tidak ditemukan di jaringan Sepolia.");
+        setStatus("⚠️ Alamat Auth Manager tidak ditemukan di Sepolia.");
+        setLoading(false);
+        return;
+      }
+      if (verifierCode === "0x") {
+        addLog("⚠️ Alamat smart contract Verifier tidak ditemukan di jaringan Sepolia.");
+        setStatus("⚠️ Alamat Verifier tidak ditemukan di Sepolia.");
+        setLoading(false);
+        return;
+      }
 
       addLog("Memeriksa status registrasi wallet di smart contract Sepolia...");
       const contract = new ethers.Contract(AUTH_MANAGER_ADDRESS, AUTH_MANAGER_ABI, signer);
@@ -165,6 +260,17 @@ export default function App() {
       addLog(`-> Parameter Proof C: [${truncateVal(c[0], 12)}, ${truncateVal(c[1], 12)}]`);
       addLog(`-> Public Input: [${truncateVal(input[0], 24)}]`);
       
+      const verifierContract = new ethers.Contract(VERIFIER_ADDRESS, VERIFIER_ABI, provider);
+      addLog(`Memeriksa proof ke verifier contract ${VERIFIER_ADDRESS}...`);
+      const proofValid = await verifierContract.verifyProof(a, b, c, input);
+      addLog(`Verifier contract jawab: ${proofValid}`);
+      if (!proofValid) {
+        addLog("❌ Proof tidak valid menurut verifier contract. Transaksi login dibatalkan.");
+        setStatus("❌ Proof tidak valid.");
+        setLoading(false);
+        return;
+      }
+
       addLog("Memanggil smart contract ke blockchain Sepolia via ethers.js...");
       addLog(`Mengevaluasi bukti ZKP via login(a, b, c, [${truncateVal(input[0], 16)}])...`);
       const success = await contract.login(a, b, c, input);
@@ -177,8 +283,9 @@ export default function App() {
       }
     } catch (err) {
       console.error(err);
-      addLog(`❌ Login Gagal: ${err.message}`);
-      setStatus("❌ Login Gagal.");
+      const readableMessage = getReadableError(err);
+      addLog(`❌ Login Gagal: ${readableMessage}`);
+      setStatus("❌ Login Gagal: " + readableMessage);
     } finally {
       setLoading(false);
     }
